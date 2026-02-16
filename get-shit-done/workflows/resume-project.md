@@ -20,14 +20,14 @@ Instantly restore full project context so "Where were we?" has an immediate, com
 Load all context in one call:
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init resume)
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init resume)
 ```
 
 Parse JSON for: `state_exists`, `roadmap_exists`, `project_exists`, `planning_exists`, `has_interrupted_agent`, `interrupted_agent_id`, `commit_docs`.
 
 **If `state_exists` is true:** Proceed to load_state
 **If `state_exists` is false but `roadmap_exists` or `project_exists` is true:** Offer to reconstruct STATE.md
-**If `planning_exists` is false:** This is a new project - route to /gsd:new-project
+**If `planning_exists` is false:** This is a new project - route to /arc:new-project
 </step>
 
 <step name="load_state">
@@ -124,7 +124,7 @@ Present complete project status to user:
     Resume with: Task tool (resume parameter with agent ID)
 
 [If pending todos exist:]
-📋 [N] pending todos — /gsd:check-todos to review
+📋 [N] pending todos — /arc:check-todos to review
 
 [If blockers exist:]
 ⚠️  Carried concerns:
@@ -180,11 +180,11 @@ What would you like to do?
 [Primary action based on state - e.g.:]
 1. Resume interrupted agent [if interrupted agent found]
    OR
-1. Execute phase (/gsd:execute-phase {phase})
+1. Execute phase (/arc:execute-phase {phase})
    OR
-1. Discuss Phase 3 context (/gsd:discuss-phase 3) [if CONTEXT.md missing]
+1. Discuss Phase 3 context (/arc:discuss-phase 3) [if CONTEXT.md missing]
    OR
-1. Plan Phase 3 (/gsd:plan-phase 3) [if CONTEXT.md exists or discuss option declined]
+1. Plan Phase 3 (/arc:plan-phase 3) [if CONTEXT.md exists or discuss option declined]
 
 [Secondary options:]
 2. Review current phase status
@@ -215,7 +215,7 @@ Based on user selection, route to appropriate workflow:
 
   **{phase}-{plan}: [Plan Name]** — [objective from PLAN.md]
 
-  `/gsd:execute-phase {phase}`
+  `/arc:execute-phase {phase}`
 
   <sub>`/clear` first → fresh context window</sub>
 
@@ -229,15 +229,15 @@ Based on user selection, route to appropriate workflow:
 
   **Phase [N]: [Name]** — [Goal from ROADMAP.md]
 
-  `/gsd:plan-phase [phase-number]`
+  `/arc:plan-phase [phase-number]`
 
   <sub>`/clear` first → fresh context window</sub>
 
   ---
 
   **Also available:**
-  - `/gsd:discuss-phase [N]` — gather context first
-  - `/gsd:research-phase [N]` — investigate unknowns
+  - `/arc:discuss-phase [N]` — gather context first
+  - `/arc:research-phase [N]` — investigate unknowns
 
   ---
   ```

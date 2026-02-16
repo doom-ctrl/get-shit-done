@@ -12,7 +12,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 **Load progress context (with file contents to avoid redundant reads):**
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init progress --include state,roadmap,project,config)
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init progress --include state,roadmap,project,config)
 ```
 
 Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`, `milestone_version`, `completed_count`, `phase_count`, `paused_at`.
@@ -24,18 +24,18 @@ If `project_exists` is false (no `.planning/` directory):
 ```
 No planning structure found.
 
-Run /gsd:new-project to start a new project.
+Run /arc:new-project to start a new project.
 ```
 
 Exit.
 
-If missing STATE.md: suggest `/gsd:new-project`.
+If missing STATE.md: suggest `/arc:new-project`.
 
 **If ROADMAP.md missing but PROJECT.md exists:**
 
 This means a milestone was completed and archived. Go to **Route F** (between milestones).
 
-If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
+If missing both ROADMAP.md and PROJECT.md: suggest `/arc:new-project`.
 </step>
 
 <step name="load">
@@ -54,7 +54,7 @@ No additional file reads needed.
 **Get comprehensive roadmap analysis (replaces manual parsing):**
 
 ```bash
-ROADMAP=$(node ~/.claude/get-shit-done/bin/gsd-tools.js roadmap analyze)
+ROADMAP=$(node ~/.claude/get-shit-done/bin/arc-tools.js roadmap analyze)
 ```
 
 This returns structured JSON with:
@@ -73,7 +73,7 @@ Use this instead of manually reading/parsing ROADMAP.md.
 - Find the 2-3 most recent SUMMARY.md files
 - Use `summary-extract` for efficient parsing:
   ```bash
-  node ~/.claude/get-shit-done/bin/gsd-tools.js summary-extract <path> --fields one_liner
+  node ~/.claude/get-shit-done/bin/arc-tools.js summary-extract <path> --fields one_liner
   ```
 - This shows "what we've been working on"
   </step>
@@ -93,7 +93,7 @@ Use this instead of manually reading/parsing ROADMAP.md.
 
 ```bash
 # Get formatted progress bar
-PROGRESS_BAR=$(node ~/.claude/get-shit-done/bin/gsd-tools.js progress bar --raw)
+PROGRESS_BAR=$(node ~/.claude/get-shit-done/bin/arc-tools.js progress bar --raw)
 ```
 
 Present:
@@ -121,10 +121,10 @@ CONTEXT: [✓ if has_context | - if not]
 - [any blockers or concerns from STATE.md]
 
 ## Pending Todos
-- [count] pending — /gsd:check-todos to review
+- [count] pending — /arc:check-todos to review
 
 ## Active Debug Sessions
-- [count] active — /gsd:debug to continue
+- [count] active — /arc:debug to continue
 (Only show this section if count > 0)
 
 ## What's Next
@@ -183,7 +183,7 @@ Read its `<objective>` section.
 
 **{phase}-{plan}: [Plan Name]** — [objective summary from PLAN.md]
 
-`/gsd:execute-phase {phase}`
+`/arc:execute-phase {phase}`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -206,7 +206,7 @@ Check if `{phase}-CONTEXT.md` exists in phase directory.
 **Phase {N}: {Name}** — {Goal from ROADMAP.md}
 <sub>✓ Context gathered, ready to plan</sub>
 
-`/gsd:plan-phase {phase-number}`
+`/arc:plan-phase {phase-number}`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -222,15 +222,15 @@ Check if `{phase}-CONTEXT.md` exists in phase directory.
 
 **Phase {N}: {Name}** — {Goal from ROADMAP.md}
 
-`/gsd:discuss-phase {phase}` — gather context and clarify approach
+`/arc:discuss-phase {phase}` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:plan-phase {phase}` — skip discussion, plan directly
-- `/gsd:list-phase-assumptions {phase}` — see Claude's assumptions
+- `/arc:plan-phase {phase}` — skip discussion, plan directly
+- `/arc:list-phase-assumptions {phase}` — see Claude's assumptions
 
 ---
 ```
@@ -248,15 +248,15 @@ UAT.md exists with gaps (diagnosed issues). User needs to plan fixes.
 
 **{phase}-UAT.md** has {N} gaps requiring fixes.
 
-`/gsd:plan-phase {phase} --gaps`
+`/arc:plan-phase {phase} --gaps`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:execute-phase {phase}` — execute phase plans
-- `/gsd:verify-work {phase}` — run more UAT testing
+- `/arc:execute-phase {phase}` — execute phase plans
+- `/arc:verify-work {phase}` — run more UAT testing
 
 ---
 ```
@@ -295,15 +295,15 @@ Read ROADMAP.md to get the next phase's name and goal.
 
 **Phase {Z+1}: {Name}** — {Goal from ROADMAP.md}
 
-`/gsd:discuss-phase {Z+1}` — gather context and clarify approach
+`/arc:discuss-phase {Z+1}` — gather context and clarify approach
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:plan-phase {Z+1}` — skip discussion, plan directly
-- `/gsd:verify-work {Z}` — user acceptance test before continuing
+- `/arc:plan-phase {Z+1}` — skip discussion, plan directly
+- `/arc:verify-work {Z}` — user acceptance test before continuing
 
 ---
 ```
@@ -323,14 +323,14 @@ All {N} phases finished!
 
 **Complete Milestone** — archive and prepare for next
 
-`/gsd:complete-milestone`
+`/arc:complete-milestone`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:verify-work` — user acceptance test before completing milestone
+- `/arc:verify-work` — user acceptance test before completing milestone
 
 ---
 ```
@@ -354,7 +354,7 @@ Ready to plan the next milestone.
 
 **Start Next Milestone** — questioning → research → requirements → roadmap
 
-`/gsd:new-milestone`
+`/arc:new-milestone`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -366,10 +366,10 @@ Ready to plan the next milestone.
 <step name="edge_cases">
 **Handle edge cases:**
 
-- Phase complete but next phase not planned → offer `/gsd:plan-phase [next]`
+- Phase complete but next phase not planned → offer `/arc:plan-phase [next]`
 - All work complete → offer milestone completion
 - Blockers present → highlight before offering to continue
-- Handoff file exists → mention it, offer `/gsd:resume-work`
+- Handoff file exists → mention it, offer `/arc:resume-work`
   </step>
 
 </process>
@@ -379,7 +379,7 @@ Ready to plan the next milestone.
 - [ ] Rich context provided (recent work, decisions, issues)
 - [ ] Current position clear with visual progress
 - [ ] What's next clearly explained
-- [ ] Smart routing: /gsd:execute-phase if plans exist, /gsd:plan-phase if not
+- [ ] Smart routing: /arc:execute-phase if plans exist, /arc:plan-phase if not
 - [ ] User confirms before any action
 - [ ] Seamless handoff to appropriate gsd command
       </success_criteria>

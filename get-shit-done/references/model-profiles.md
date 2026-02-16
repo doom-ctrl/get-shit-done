@@ -6,9 +6,9 @@ Model profiles control which Claude model each GSD agent uses. This allows balan
 
 | Agent | `quality` | `balanced` | `budget` |
 |-------|-----------|------------|----------|
-| gsd-planner | opus | opus | sonnet |
-| gsd-roadmapper | opus | sonnet | sonnet |
-| gsd-executor | opus | sonnet | sonnet |
+| arc-planner | opus | opus | sonnet |
+| arc-roadmapper | opus | sonnet | sonnet |
+| arc-executor | opus | sonnet | sonnet |
 | gsd-phase-researcher | opus | sonnet | haiku |
 | gsd-project-researcher | opus | sonnet | haiku |
 | gsd-research-synthesizer | sonnet | sonnet | haiku |
@@ -49,7 +49,7 @@ Orchestrators resolve model before spawning:
 
 ## Switching Profiles
 
-Runtime: `/gsd:set-profile <profile>`
+Runtime: `/arc:set-profile <profile>`
 
 Per-project default: Set in `.planning/config.json`:
 ```json
@@ -60,10 +60,10 @@ Per-project default: Set in `.planning/config.json`:
 
 ## Design Rationale
 
-**Why Opus for gsd-planner?**
+**Why Opus for arc-planner?**
 Planning involves architecture decisions, goal decomposition, and task design. This is where model quality has the highest impact.
 
-**Why Sonnet for gsd-executor?**
+**Why Sonnet for arc-executor?**
 Executors follow explicit PLAN.md instructions. The plan already contains the reasoning; execution is implementation.
 
 **Why Sonnet (not Haiku) for verifiers in balanced?**

@@ -8,7 +8,7 @@ Template for `.planning/phases/XX-name/{phase}-CONTEXT.md` - captures implementa
 
 **Downstream consumers:**
 - `gsd-phase-researcher` — Reads decisions to focus research (e.g., "card layout" → research card component patterns)
-- `gsd-planner` — Reads decisions to create specific tasks (e.g., "infinite scroll" → task includes virtualization)
+- `arc-planner` — Reads decisions to create specific tasks (e.g., "infinite scroll" → task includes virtualization)
 
 ---
 
@@ -278,6 +278,6 @@ The output should answer: "What does the researcher need to investigate? What ch
 **After creation:**
 - File lives in phase directory: `.planning/phases/XX-name/{phase}-CONTEXT.md`
 - `gsd-phase-researcher` uses decisions to focus investigation
-- `gsd-planner` uses decisions + research to create executable tasks
+- `arc-planner` uses decisions + research to create executable tasks
 - Downstream agents should NOT need to ask the user again about captured decisions
 </guidelines>

@@ -11,21 +11,21 @@ Read all files referenced by the invoking prompt's execution_context before star
 ## 0. Initialize Milestone Context
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init milestone-op)
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init milestone-op)
 ```
 
 Extract from init JSON: `milestone_version`, `milestone_name`, `phase_count`, `completed_phases`, `commit_docs`.
 
 Resolve integration checker model:
 ```bash
-CHECKER_MODEL=$(node ~/.claude/get-shit-done/bin/gsd-tools.js resolve-model gsd-integration-checker --raw)
+CHECKER_MODEL=$(node ~/.claude/get-shit-done/bin/arc-tools.js resolve-model arc-integration-checker --raw)
 ```
 
 ## 1. Determine Milestone Scope
 
 ```bash
 # Get phases in milestone (sorted numerically, handles decimals)
-node ~/.claude/get-shit-done/bin/gsd-tools.js phases list
+node ~/.claude/get-shit-done/bin/arc-tools.js phases list
 ```
 
 - Parse version from arguments or detect current from ROADMAP.md
@@ -65,7 +65,7 @@ Phase exports: {from SUMMARYs}
 API routes: {routes created}
 
 Verify cross-phase wiring and E2E user flows.",
-  subagent_type="gsd-integration-checker",
+  subagent_type="arc-integration-checker",
   model="{integration_checker_model}"
 )
 ```
@@ -145,7 +145,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 
 **Complete milestone** — archive and tag
 
-/gsd:complete-milestone {version}
+/arc:complete-milestone {version}
 
 <sub>/clear first → fresh context window</sub>
 
@@ -182,7 +182,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 
 **Plan gap closure** — create phases to complete milestone
 
-/gsd:plan-milestone-gaps
+/arc:plan-milestone-gaps
 
 <sub>/clear first → fresh context window</sub>
 
@@ -190,7 +190,7 @@ All requirements covered. Cross-phase integration verified. E2E flows complete.
 
 **Also available:**
 - cat .planning/v{version}-MILESTONE-AUDIT.md — see full report
-- /gsd:complete-milestone {version} — proceed anyway (accept tech debt)
+- /arc:complete-milestone {version} — proceed anyway (accept tech debt)
 
 ───────────────────────────────────────────────────────────────
 
@@ -220,11 +220,11 @@ All requirements met. No critical blockers. Accumulated tech debt needs review.
 
 **A. Complete milestone** — accept debt, track in backlog
 
-/gsd:complete-milestone {version}
+/arc:complete-milestone {version}
 
 **B. Plan cleanup phase** — address debt before completing
 
-/gsd:plan-milestone-gaps
+/arc:plan-milestone-gaps
 
 <sub>/clear first → fresh context window</sub>
 

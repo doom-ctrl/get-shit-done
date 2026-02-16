@@ -32,22 +32,22 @@ Plan all remaining phases autonomously while showing every step.
 
 2. **PLANNING LOOP**
    For phase from current_phase to total_phases:
-   
+
    a) **CHECK IF ALREADY PLANNED:**
       - If `{phase}-RESEARCH.md` AND `{phase}-*-PLAN.md` exist:
         - Report: "Phase [phase] already planned. Skipping."
         - Continue to next phase
-   
+
    b) **DISCUSS PHASE:**
       - Run: `/gsd:discuss-phase [phase]`
       - Wait for full completion (see all questions & answers)
       - Confirm `{phase}-CONTEXT.md` created
-   
+
    c) **PLAN PHASE:**
       - Run: `/gsd:plan-phase [phase]`
       - Wait for full completion (see research agents & plan creation)
       - Confirm research and plan files created
-   
+
    d) **REPORT PROGRESS:**
       - Report: "Phase [phase] planned. ([phase]/[total])"
       - Continue automatically to next phase

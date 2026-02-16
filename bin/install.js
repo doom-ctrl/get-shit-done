@@ -150,7 +150,7 @@ console.log(banner);
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx get-shit-done-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall GSD (remove all GSD files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx get-shit-done-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx get-shit-done-cc --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx get-shit-done-cc --gemini --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx get-shit-done-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx get-shit-done-cc --claude --global --config-dir ~/.claude-bc\n\n    ${dim}# Install to current project only${reset}\n    npx get-shit-done-cc --claude --local\n\n    ${dim}# Uninstall GSD from Claude Code globally${reset}\n    npx get-shit-done-cc --claude --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx arc-knows [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall Arc knows (remove all GSD files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx arc-knows\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx arc-knows --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx arc-knows --gemini --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx arc-knows --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx arc-knows --claude --global --config-dir ~/.claude-bc\n\n    ${dim}# Install to current project only${reset}\n    npx arc-knows --claude --local\n\n    ${dim}# Uninstall Arc knows from Claude Code globally${reset}\n    npx arc-knows --claude --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR environment variables.\n`);
   process.exit(0);
 }
 
@@ -767,7 +767,7 @@ function cleanupOrphanedHooks(settings) {
 }
 
 /**
- * Uninstall GSD from the specified directory for a specific runtime
+ * Uninstall Arc knows from the specified directory for a specific runtime
  * Removes only GSD-specific files/directories, preserves user content
  * @param {boolean} isGlobal - Whether to uninstall from global or local
  * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini')
@@ -1029,7 +1029,7 @@ function parseJsonc(content) {
 
 /**
  * Configure OpenCode permissions to allow reading GSD reference docs
- * This prevents permission prompts when GSD accesses the get-shit-done directory
+ * This prevents permission prompts when Arc knows accesses the get-shit-done directory
  */
 function configureOpencodePermissions() {
   // OpenCode config file is at ~/.config/opencode/opencode.json

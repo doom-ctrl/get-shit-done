@@ -123,7 +123,7 @@ If found, delete them — phase is complete, handoffs are stale.
 **Delegate ROADMAP.md and STATE.md updates to gsd-tools:**
 
 ```bash
-TRANSITION=$(node ~/.claude/get-shit-done/bin/gsd-tools.js phase complete "${current_phase}")
+TRANSITION=$(node ~/.claude/get-shit-done/bin/arc-tools.js phase complete "${current_phase}")
 ```
 
 The CLI handles:
@@ -238,7 +238,7 @@ After (Phase 2 shipped JWT auth, discovered rate limiting needed):
 Verify the updates are correct by reading STATE.md. If the progress bar needs updating, use:
 
 ```bash
-PROGRESS=$(node ~/.claude/get-shit-done/bin/gsd-tools.js progress bar --raw)
+PROGRESS=$(node ~/.claude/get-shit-done/bin/arc-tools.js progress bar --raw)
 ```
 
 Update the progress bar line in STATE.md with the result.
@@ -347,7 +347,7 @@ The `next_phase` and `next_phase_name` fields give you the next phase details.
 
 If you need additional context, use:
 ```bash
-ROADMAP=$(node ~/.claude/get-shit-done/bin/gsd-tools.js roadmap analyze)
+ROADMAP=$(node ~/.claude/get-shit-done/bin/arc-tools.js roadmap analyze)
 ```
 
 This returns all phases with goals, disk status, and completion info.
@@ -370,7 +370,7 @@ Next: Phase [X+1] — [Name]
 ⚡ Auto-continuing: Plan Phase [X+1] in detail
 ```
 
-Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1]")
+Exit skill and invoke SlashCommand("/arc:plan-phase [X+1]")
 
 </if>
 
@@ -385,15 +385,15 @@ Exit skill and invoke SlashCommand("/gsd:plan-phase [X+1]")
 
 **Phase [X+1]: [Name]** — [Goal from ROADMAP.md]
 
-`/gsd:plan-phase [X+1]`
+`/arc:plan-phase [X+1]`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:discuss-phase [X+1]` — gather context first
-- `/gsd:research-phase [X+1]` — investigate unknowns
+- `/arc:discuss-phase [X+1]` — gather context first
+- `/arc:research-phase [X+1]` — investigate unknowns
 - Review roadmap
 
 ---
@@ -415,7 +415,7 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Complete milestone and archive
 ```
 
-Exit skill and invoke SlashCommand("/gsd:complete-milestone {version}")
+Exit skill and invoke SlashCommand("/arc:complete-milestone {version}")
 
 </if>
 
@@ -432,7 +432,7 @@ Exit skill and invoke SlashCommand("/gsd:complete-milestone {version}")
 
 **Complete Milestone {version}** — archive and prepare for next
 
-`/gsd:complete-milestone {version}`
+`/arc:complete-milestone {version}`
 
 <sub>`/clear` first → fresh context window</sub>
 

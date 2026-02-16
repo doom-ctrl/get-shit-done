@@ -1,5 +1,5 @@
 <purpose>
-Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking) while skipping optional agents (research, plan-checker, verifier). Quick mode spawns gsd-planner (quick mode) + gsd-executor(s), tracks tasks in `.planning/quick/`, and updates STATE.md's "Quick Tasks Completed" table.
+Execute small, ad-hoc tasks with GSD guarantees (atomic commits, STATE.md tracking) while skipping optional agents (research, plan-checker, verifier). Quick mode spawns arc-planner (quick mode) + arc-executor(s), tracks tasks in `.planning/quick/`, and updates STATE.md's "Quick Tasks Completed" table.
 </purpose>
 
 <required_reading>
@@ -28,12 +28,12 @@ If empty, re-prompt: "Please provide a task description."
 **Step 2: Initialize**
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init quick "$DESCRIPTION")
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init quick "$DESCRIPTION")
 ```
 
 Parse JSON for: `planner_model`, `executor_model`, `commit_docs`, `next_num`, `slug`, `date`, `timestamp`, `quick_dir`, `task_dir`, `roadmap_exists`, `planning_exists`.
 
-**If `roadmap_exists` is false:** Error — Quick mode requires an active project with ROADMAP.md. Run `/gsd:new-project` first.
+**If `roadmap_exists` is false:** Error — Quick mode requires an active project with ROADMAP.md. Run `/arc:new-project` first.
 
 Quick tasks can run mid-phase - validation only checks ROADMAP.md exists, not phase status.
 
@@ -68,7 +68,7 @@ Store `$QUICK_DIR` for use in orchestration.
 
 **Step 5: Spawn planner (quick mode)**
 
-Spawn gsd-planner with quick mode context:
+Spawn arc-planner with quick mode context:
 
 ```
 Task(
@@ -96,7 +96,7 @@ Write plan to: ${QUICK_DIR}/${next_num}-PLAN.md
 Return: ## PLANNING COMPLETE with plan path
 </output>
 ",
-  subagent_type="gsd-planner",
+  subagent_type="arc-planner",
   model="{planner_model}",
   description="Quick plan: ${DESCRIPTION}"
 )
@@ -113,7 +113,7 @@ If plan not found, error: "Planner failed to create ${next_num}-PLAN.md"
 
 **Step 6: Spawn executor**
 
-Spawn gsd-executor with plan reference:
+Spawn arc-executor with plan reference:
 
 ```
 Task(
@@ -130,7 +130,7 @@ Project state: @.planning/STATE.md
 - Do NOT update ROADMAP.md (quick tasks are separate from planned phases)
 </constraints>
 ",
-  subagent_type="gsd-executor",
+  subagent_type="arc-executor",
   model="{executor_model}",
   description="Execute: ${DESCRIPTION}"
 )
@@ -191,7 +191,7 @@ Use Edit tool to make these changes atomically
 Stage and commit quick task artifacts:
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(quick-${next_num}): ${DESCRIPTION}" --files ${QUICK_DIR}/${next_num}-PLAN.md ${QUICK_DIR}/${next_num}-SUMMARY.md .planning/STATE.md
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs(quick-${next_num}): ${DESCRIPTION}" --files ${QUICK_DIR}/${next_num}-PLAN.md ${QUICK_DIR}/${next_num}-SUMMARY.md .planning/STATE.md
 ```
 
 Get final commit hash:
@@ -212,7 +212,7 @@ Commit: ${commit_hash}
 
 ---
 
-Ready for next task: /gsd:quick
+Ready for next task: /arc:quick
 ```
 
 </process>

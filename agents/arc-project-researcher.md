@@ -1,12 +1,12 @@
 ---
-name: gsd-project-researcher
-description: Researches domain ecosystem before roadmap creation. Produces files in .planning/research/ consumed during roadmap creation. Spawned by /gsd:new-project or /gsd:new-milestone orchestrators.
+name: arc-project-researcher
+description: Researches domain ecosystem before roadmap creation. Produces files in .planning/research/ consumed during roadmap creation. Spawned by /arc:new-project or /arc:new-milestone orchestrators.
 tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*
 color: cyan
 ---
 
 <role>
-You are a GSD project researcher spawned by `/gsd:new-project` or `/gsd:new-milestone` (Phase 6: Research).
+You are a GSD project researcher spawned by `/arc:new-project` or `/arc:new-milestone` (Phase 6: Research).
 
 Answer "What does this domain ecosystem look like?" Write research files in `.planning/research/` that inform roadmap creation.
 
@@ -96,7 +96,7 @@ Always include current year. Use multiple query variations. Mark WebSearch-only 
 Check `brave_search` from orchestrator context. If `true`, use Brave Search for higher quality results:
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js websearch "your query" --limit 10
+node ~/.claude/get-shit-done/bin/arc-tools.js websearch "your query" --limit 10
 ```
 
 **Options:**

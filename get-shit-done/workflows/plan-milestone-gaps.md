@@ -1,5 +1,5 @@
 <purpose>
-Create all phases necessary to close gaps identified by `/gsd:audit-milestone`. Reads MILESTONE-AUDIT.md, groups gaps into logical phases, creates phase entries in ROADMAP.md, and offers to plan each phase. One command creates all fix phases — no manual `/gsd:add-phase` per gap.
+Create all phases necessary to close gaps identified by `/arc:audit-milestone`. Reads MILESTONE-AUDIT.md, groups gaps into logical phases, creates phase entries in ROADMAP.md, and offers to plan each phase. One command creates all fix phases — no manual `/arc:add-phase` per gap.
 </purpose>
 
 <required_reading>
@@ -22,7 +22,7 @@ Parse YAML frontmatter to extract structured gaps:
 
 If no audit file exists or has no gaps, error:
 ```
-No audit gaps found. Run `/gsd:audit-milestone` first.
+No audit gaps found. Run `/arc:audit-milestone` first.
 ```
 
 ## 2. Prioritize Gaps
@@ -65,7 +65,7 @@ Gap: Flow "View dashboard" broken at data fetch
 Find highest existing phase:
 ```bash
 # Get sorted phase list, extract last one
-PHASES=$(node ~/.claude/get-shit-done/bin/gsd-tools.js phases list)
+PHASES=$(node ~/.claude/get-shit-done/bin/arc-tools.js phases list)
 HIGHEST=$(echo "$PHASES" | jq -r '.directories[-1]')
 ```
 
@@ -132,7 +132,7 @@ mkdir -p ".planning/phases/{NN}-{name}"
 ## 8. Commit Roadmap Update
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(roadmap): add gap closure phases {N}-{M}" --files .planning/ROADMAP.md
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs(roadmap): add gap closure phases {N}-{M}" --files .planning/ROADMAP.md
 ```
 
 ## 9. Offer Next Steps
@@ -149,22 +149,22 @@ node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs(roadmap): add gap clo
 
 **Plan first gap closure phase**
 
-`/gsd:plan-phase {N}`
+`/arc:plan-phase {N}`
 
 <sub>`/clear` first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- `/gsd:execute-phase {N}` — if plans already exist
+- `/arc:execute-phase {N}` — if plans already exist
 - `cat .planning/ROADMAP.md` — see updated roadmap
 
 ---
 
 **After all gap phases complete:**
 
-`/gsd:audit-milestone` — re-audit to verify gaps closed
-`/gsd:complete-milestone {version}` — archive when audit passes
+`/arc:audit-milestone` — re-audit to verify gaps closed
+`/arc:complete-milestone {version}` — archive when audit passes
 ```
 
 </process>
@@ -252,5 +252,5 @@ becomes:
 - [ ] ROADMAP.md updated with new phases
 - [ ] Phase directories created
 - [ ] Changes committed
-- [ ] User knows to run `/gsd:plan-phase` next
+- [ ] User knows to run `/arc:plan-phase` next
 </success_criteria>

@@ -22,12 +22,12 @@ Check if `--auto` flag is present in $ARGUMENTS.
   - Roadmap approval: Auto-approve
 
 **Document requirement:**
-Auto mode requires an idea document via @ reference (e.g., `/gsd:new-project --auto @prd.md`). If no document provided, error:
+Auto mode requires an idea document via @ reference (e.g., `/arc:new-project --auto @prd.md`). If no document provided, error:
 
 ```
 Error: --auto requires an idea document via @ reference.
 
-Usage: /gsd:new-project --auto @your-idea.md
+Usage: /arc:new-project --auto @your-idea.md
 
 The document should describe what you want to build.
 ```
@@ -40,12 +40,12 @@ The document should describe what you want to build.
 **MANDATORY FIRST STEP — Execute these checks before ANY user interaction:**
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init new-project)
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init new-project)
 ```
 
 Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `project_exists`, `has_codebase_map`, `planning_exists`, `has_existing_code`, `has_package_file`, `is_brownfield`, `needs_codebase_map`, `has_git`.
 
-**If `project_exists` is true:** Error — project already initialized. Use `/gsd:progress`.
+**If `project_exists` is true:** Error — project already initialized. Use `/arc:progress`.
 
 **If `has_git` is false:** Initialize git:
 ```bash
@@ -62,12 +62,12 @@ Use AskUserQuestion:
 - header: "Existing Code"
 - question: "I detected existing code in this directory. Would you like to map the codebase first?"
 - options:
-  - "Map codebase first" — Run /gsd:map-codebase to understand existing architecture (Recommended)
+  - "Map codebase first" — Run /arc:map-codebase to understand existing architecture (Recommended)
   - "Skip mapping" — Proceed with project initialization
 
 **If "Map codebase first":**
 ```
-Run `/gsd:map-codebase` first, then return to `/gsd:new-project`
+Run `/arc:map-codebase` first, then return to `/arc:new-project`
 ```
 Exit command.
 
@@ -81,7 +81,7 @@ Exit command.
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► QUESTIONING
+ Arc knows ► QUESTIONING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -212,7 +212,7 @@ Do not compress. Capture everything gathered.
 
 ```bash
 mkdir -p .planning
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs: initialize project" --files .planning/PROJECT.md
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs: initialize project" --files .planning/PROJECT.md
 ```
 
 ## 5. Workflow Preferences
@@ -342,10 +342,10 @@ Create `.planning/config.json` with all settings:
 **Commit config.json:**
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "chore: add project config" --files .planning/config.json
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "chore: add project config" --files .planning/config.json
 ```
 
-**Note:** Run `/gsd:settings` anytime to update these preferences.
+**Note:** Run `/arc:settings` anytime to update these preferences.
 
 ## 5.5. Resolve Model Profile
 
@@ -367,7 +367,7 @@ Use AskUserQuestion:
 Display stage banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► RESEARCHING
+ Arc knows ► RESEARCHING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Researching [domain] ecosystem...
@@ -393,10 +393,10 @@ Display spawning indicator:
   → Pitfalls research
 ```
 
-Spawn 4 parallel gsd-project-researcher agents with rich context:
+Spawn 4 parallel arc-project-researcher agents with rich context:
 
 ```
-Task(prompt="First, read ~/.claude/agents/gsd-project-researcher.md for your role and instructions.
+Task(prompt="First, read ~/.claude/agents/arc-project-researcher.md for your role and instructions.
 
 <research_type>
 Project Research — Stack dimension for [domain].
@@ -436,7 +436,7 @@ Use template: ~/.claude/get-shit-done/templates/research-project/STACK.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Stack research")
 
-Task(prompt="First, read ~/.claude/agents/gsd-project-researcher.md for your role and instructions.
+Task(prompt="First, read ~/.claude/agents/arc-project-researcher.md for your role and instructions.
 
 <research_type>
 Project Research — Features dimension for [domain].
@@ -476,7 +476,7 @@ Use template: ~/.claude/get-shit-done/templates/research-project/FEATURES.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Features research")
 
-Task(prompt="First, read ~/.claude/agents/gsd-project-researcher.md for your role and instructions.
+Task(prompt="First, read ~/.claude/agents/arc-project-researcher.md for your role and instructions.
 
 <research_type>
 Project Research — Architecture dimension for [domain].
@@ -516,7 +516,7 @@ Use template: ~/.claude/get-shit-done/templates/research-project/ARCHITECTURE.md
 </output>
 ", subagent_type="general-purpose", model="{researcher_model}", description="Architecture research")
 
-Task(prompt="First, read ~/.claude/agents/gsd-project-researcher.md for your role and instructions.
+Task(prompt="First, read ~/.claude/agents/arc-project-researcher.md for your role and instructions.
 
 <research_type>
 Project Research — Pitfalls dimension for [domain].
@@ -578,13 +578,13 @@ Write to: .planning/research/SUMMARY.md
 Use template: ~/.claude/get-shit-done/templates/research-project/SUMMARY.md
 Commit after writing.
 </output>
-", subagent_type="gsd-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
+", subagent_type="arc-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
 ```
 
 Display research complete banner and key findings:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► RESEARCH COMPLETE ✓
+ Arc knows ► RESEARCH COMPLETE ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## Key Findings
@@ -603,7 +603,7 @@ Files: `.planning/research/`
 Display stage banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► DEFINING REQUIREMENTS
+ Arc knows ► DEFINING REQUIREMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -740,7 +740,7 @@ If "adjust": Return to scoping.
 **Commit requirements:**
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs: define v1 requirements" --files .planning/REQUIREMENTS.md
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs: define v1 requirements" --files .planning/REQUIREMENTS.md
 ```
 
 ## 8. Create Roadmap
@@ -748,13 +748,13 @@ node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs: define v1 requiremen
 Display stage banner:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► CREATING ROADMAP
+ Arc knows ► CREATING ROADMAP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ◆ Spawning roadmapper...
 ```
 
-Spawn gsd-roadmapper agent with context:
+Spawn arc-roadmapper agent with context:
 
 ```
 Task(prompt="
@@ -785,7 +785,7 @@ Create roadmap:
 
 Write files first, then return. This ensures artifacts persist even if context is lost.
 </instructions>
-", subagent_type="gsd-roadmapper", model="{roadmapper_model}", description="Create roadmap")
+", subagent_type="arc-roadmapper", model="{roadmapper_model}", description="Create roadmap")
 ```
 
 **Handle roadmapper return:**
@@ -863,7 +863,7 @@ Use AskUserQuestion:
   Update the roadmap based on feedback. Edit files in place.
   Return ROADMAP REVISED with changes made.
   </revision>
-  ", subagent_type="gsd-roadmapper", model="{roadmapper_model}", description="Revise roadmap")
+  ", subagent_type="arc-roadmapper", model="{roadmapper_model}", description="Revise roadmap")
   ```
 - Present revised roadmap
 - Loop until user approves
@@ -873,7 +873,7 @@ Use AskUserQuestion:
 **Commit roadmap (after approval or auto mode):**
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs: create roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
 ```
 
 ## 9. Done
@@ -882,7 +882,7 @@ Present completion with next steps:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► PROJECT INITIALIZED ✓
+ Arc knows ► PROJECT INITIALIZED ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **[Project Name]**
@@ -903,14 +903,14 @@ Present completion with next steps:
 
 **Phase 1: [Phase Name]** — [Goal from ROADMAP.md]
 
-/gsd:discuss-phase 1 — gather context and clarify approach
+/arc:discuss-phase 1 — gather context and clarify approach
 
 <sub>/clear first → fresh context window</sub>
 
 ---
 
 **Also available:**
-- /gsd:plan-phase 1 — skip discussion, plan directly
+- /arc:plan-phase 1 — skip discussion, plan directly
 
 ───────────────────────────────────────────────────────────────
 ```
@@ -945,13 +945,13 @@ Present completion with next steps:
 - [ ] Requirements gathered (from research or conversation)
 - [ ] User scoped each category (v1/v2/out of scope)
 - [ ] REQUIREMENTS.md created with REQ-IDs → **committed**
-- [ ] gsd-roadmapper spawned with context
+- [ ] arc-roadmapper spawned with context
 - [ ] Roadmap files written immediately (not draft)
 - [ ] User feedback incorporated (if any)
 - [ ] ROADMAP.md created with phases, requirement mappings, success criteria
 - [ ] STATE.md initialized
 - [ ] REQUIREMENTS.md traceability updated
-- [ ] User knows next step is `/gsd:discuss-phase 1`
+- [ ] User knows next step is `/arc:discuss-phase 1`
 
 **Atomic commits:** Each phase commits its artifacts immediately. If context is lost, artifacts persist.
 

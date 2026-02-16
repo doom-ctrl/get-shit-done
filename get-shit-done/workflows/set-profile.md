@@ -23,8 +23,8 @@ if $ARGUMENTS.profile not in ["quality", "balanced", "budget"]:
 Ensure config exists and load current state:
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js config-ensure-section
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js state load)
+node ~/.claude/get-shit-done/bin/arc-tools.js config-ensure-section
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js state load)
 ```
 
 This creates `.planning/config.json` with defaults if missing and loads current config.
@@ -51,14 +51,14 @@ Display confirmation with model table for selected profile:
 
 Agents will now use:
 
-[Show table from MODEL_PROFILES in gsd-tools.js for selected profile]
+[Show table from MODEL_PROFILES in arc-tools.js for selected profile]
 
 Example:
 | Agent | Model |
 |-------|-------|
-| gsd-planner | opus |
-| gsd-executor | sonnet |
-| gsd-verifier | haiku |
+| arc-planner | opus |
+| arc-executor | sonnet |
+| arc-verifier | haiku |
 | ... | ... |
 
 Next spawned agents will use the new profile.

@@ -19,7 +19,7 @@ Look up the agent in the table for the resolved profile. Pass the model paramete
 ```
 Task(
   prompt="...",
-  subagent_type="gsd-planner",
+  subagent_type="arc-planner",
   model="{resolved_model}"  # e.g., "opus" for quality profile
 )
 ```

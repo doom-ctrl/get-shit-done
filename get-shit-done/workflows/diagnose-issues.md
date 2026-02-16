@@ -158,7 +158,7 @@ Update status in frontmatter to "diagnosed".
 
 Commit the updated UAT.md:
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs({phase}): add root causes from diagnosis" --files ".planning/phases/XX-name/{phase}-UAT.md"
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "docs({phase}): add root causes from diagnosis" --files ".planning/phases/XX-name/{phase}-UAT.md"
 ```
 </step>
 
@@ -168,7 +168,7 @@ node ~/.claude/get-shit-done/bin/gsd-tools.js commit "docs({phase}): add root ca
 Display:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► DIAGNOSIS COMPLETE
+ Arc knows ► DIAGNOSIS COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 | Gap (Truth) | Root Cause | Files |
@@ -201,7 +201,7 @@ Agents only diagnose—plan-phase --gaps handles fixes (no fix application).
 
 **Agent times out:**
 - Check DEBUG-{slug}.md for partial progress
-- Can resume with /gsd:debug
+- Can resume with /arc:debug
 
 **All agents fail:**
 - Something systemic (permissions, git, etc.)

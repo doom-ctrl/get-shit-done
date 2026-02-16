@@ -1,7 +1,9 @@
 <purpose>
-Validate built features through conversational testing with persistent state. Creates UAT.md that tracks test progress, survives /clear, and feeds gaps into /gsd:plan-phase --gaps.
+Validate built features through conversational testing with persistent state. Creates UAT.md that tracks test progress, survives /clear, and feeds gaps into /arc:plan-phase --gaps.
 
 User tests, Claude records. One test at a time. Plain text responses.
+
+**Auto-mode:** When invoked with --auto flag, runs automated verification without user prompts. Auto-diagnoses issues, creates gap plans, executes fixes, and re-verifies (max 3 iterations).
 </purpose>
 
 <philosophy>
@@ -12,6 +14,8 @@ Claude presents what SHOULD happen. User confirms or describes what's different.
 - Anything else → logged as issue, severity inferred
 
 No Pass/Fail buttons. No severity questions. Just: "Here's what should happen. Does it?"
+
+**In auto-mode:** No user interaction. Automated checks only.
 </philosophy>
 
 <template>
@@ -20,17 +24,45 @@ No Pass/Fail buttons. No severity questions. Just: "Here's what should happen. D
 
 <process>
 
-<step name="initialize" priority="first">
+<step name="detect_mode" priority="first">
+**Check if running in auto-mode:**
+
+Parse $ARGUMENTS for `--auto` flag or check if called from auto workflow.
+
+**Set `AUTO_MODE = true` if:**
+- `--auto` flag present in $ARGUMENTS
+- Environment variable `GSD_AUTO_MODE = true`
+- Being called by auto.md workflow
+
+**If `AUTO_MODE = true`:**
+- Skip all user prompts
+- Run automated verification
+- Auto-diagnose and fix gaps (max 3 iterations)
+- Stop only on unrecoverable errors
+
+Proceed to `initialize`.
+</step>
+
+<step name="initialize">
 If $ARGUMENTS contains a phase number, load context:
 
 ```bash
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js init verify-work "${PHASE_ARG}")
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js init verify-work "${PHASE_ARG}")
 ```
 
 Parse JSON for: `planner_model`, `checker_model`, `commit_docs`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `has_verification`.
+
+**If AUTO_MODE = true:**
+- Skip all interactive steps
+- Proceed directly to `auto_verify`
+
+**If AUTO_MODE = false:**
+- Continue to `check_active_session` for interactive UAT
 </step>
 
 <step name="check_active_session">
+**Only runs when AUTO_MODE = false**
+
 **First: Check for active UAT sessions**
 
 ```bash
@@ -69,7 +101,7 @@ If no, continue to `create_uat_file`.
 ```
 No active UAT sessions.
 
-Provide a phase number to start testing (e.g., /gsd:verify-work 4)
+Provide a phase number to start testing (e.g., /arc:verify-work 4)
 ```
 
 **If no active sessions AND $ARGUMENTS provided:**
@@ -292,7 +324,7 @@ Clear Current Test section:
 
 Commit the UAT file:
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js commit "test({phase}): complete UAT - {passed} passed, {issues} issues" --files ".planning/phases/XX-name/{phase}-UAT.md"
+node ~/.claude/get-shit-done/bin/arc-tools.js commit "test({phase}): complete UAT - {passed} passed, {issues} issues" --files ".planning/phases/XX-name/{phase}-UAT.md"
 ```
 
 Present summary:
@@ -317,8 +349,8 @@ Present summary:
 ```
 All tests passed. Ready to continue.
 
-- `/gsd:plan-phase {next}` — Plan next phase
-- `/gsd:execute-phase {next}` — Execute next phase
+- `/arc:plan-phase {next}` — Plan next phase
+- `/arc:execute-phase {next}` — Execute next phase
 ```
 </step>
 
@@ -349,13 +381,13 @@ Diagnosis runs automatically - no user prompt. Parallel agents investigate simul
 Display:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► PLANNING FIXES
+ Arc knows ► PLANNING FIXES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ◆ Spawning planner for gap closure...
 ```
 
-Spawn gsd-planner in --gaps mode:
+Spawn arc-planner in --gaps mode:
 
 ```
 Task(
@@ -377,11 +409,11 @@ Task(
 </planning_context>
 
 <downstream_consumer>
-Output consumed by /gsd:execute-phase
+Output consumed by /arc:execute-phase
 Plans must be executable prompts.
 </downstream_consumer>
 """,
-  subagent_type="gsd-planner",
+  subagent_type="arc-planner",
   model="{planner_model}",
   description="Plan gap fixes for Phase {phase}"
 )
@@ -389,7 +421,9 @@ Plans must be executable prompts.
 
 On return:
 - **PLANNING COMPLETE:** Proceed to `verify_gap_plans`
-- **PLANNING INCONCLUSIVE:** Report and offer manual intervention
+- **PLANNING INCONCLUSIVE:**
+  - If AUTO_MODE = true: Report error and STOP workflow (auto orchestrator handles)
+  - If AUTO_MODE = false: Report and offer manual intervention
 </step>
 
 <step name="verify_gap_plans">
@@ -398,7 +432,7 @@ On return:
 Display:
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► VERIFYING FIX PLANS
+ Arc knows ► VERIFYING FIX PLANS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ◆ Spawning plan checker...
@@ -406,7 +440,7 @@ Display:
 
 Initialize: `iteration_count = 1`
 
-Spawn gsd-plan-checker:
+Spawn arc-plan-checker:
 
 ```
 Task(
@@ -427,14 +461,16 @@ Return one of:
 - ## ISSUES FOUND — structured issue list
 </expected_output>
 """,
-  subagent_type="gsd-plan-checker",
+  subagent_type="arc-plan-checker",
   model="{checker_model}",
   description="Verify Phase {phase} fix plans"
 )
 ```
 
 On return:
-- **VERIFICATION PASSED:** Proceed to `present_ready`
+- **VERIFICATION PASSED:**
+  - If AUTO_MODE = true: Proceed to `auto_mode_flow`
+  - If AUTO_MODE = false: Proceed to `present_ready`
 - **ISSUES FOUND:** Proceed to `revision_loop`
 </step>
 
@@ -445,7 +481,7 @@ On return:
 
 Display: `Sending back to planner for revision... (iteration {N}/3)`
 
-Spawn gsd-planner with revision context:
+Spawn arc-planner with revision context:
 
 ```
 Task(
@@ -468,7 +504,7 @@ Read existing PLAN.md files. Make targeted updates to address checker issues.
 Do NOT replan from scratch unless issues are fundamental.
 </instructions>
 """,
-  subagent_type="gsd-planner",
+  subagent_type="arc-planner",
   model="{planner_model}",
   description="Revise Phase {phase} plans"
 )
@@ -484,17 +520,23 @@ Display: `Max iterations reached. {N} issues remain.`
 Offer options:
 1. Force proceed (execute despite issues)
 2. Provide guidance (user gives direction, retry)
-3. Abandon (exit, user runs /gsd:plan-phase manually)
+3. Abandon (exit, user runs /arc:plan-phase manually)
 
 Wait for user response.
+
+**If AUTO_MODE = true and iteration_count >= 3:**
+- Do not wait for user response
+- Proceed directly to `auto_mode_flow` with error status
 </step>
 
 <step name="present_ready">
+**Only runs when AUTO_MODE = false**
+
 **Present completion and next steps:**
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► FIXES READY ✓
+ Arc knows ► FIXES READY ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **Phase {X}: {Name}** — {N} gap(s) diagnosed, {M} fix plan(s) created
@@ -512,10 +554,163 @@ Plans verified and ready for execution.
 
 **Execute fixes** — run fix plans
 
-`/clear` then `/gsd:execute-phase {phase} --gaps-only`
+`/clear` then `/arc:execute-phase {phase} --gaps-only`
 
 ───────────────────────────────────────────────────────────────
 ```
+</step>
+
+<step name="auto_mode_flow">
+**Auto-mode gap closure loop (only when AUTO_MODE = true):**
+
+Initialize: `gap_iteration = 0`
+
+**Loop (max 3 iterations):**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Arc knows ► AUTO ► EXECUTING GAP PLANS (iteration {N}/3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Spawn arc-executor for gap plans:
+```
+Task(
+  prompt="""Follow the execute-phase workflow for Phase {phase_number} with --gaps-only flag.
+           @~/.claude/get-shit-done/workflows/execute-phase.md""",
+  subagent_type="general-purpose",
+  description="Execute gap plans for Phase {phase}"
+)
+```
+
+**On return:**
+- **Execution complete** — Increment `gap_iteration`, continue to re-verify
+- **Execution failed** — STOP workflow, report error to auto orchestrator
+
+**After execution, re-verify automatically:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Arc knows ► AUTO ► RE-VERIFYING (iteration {N}/3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Run automated verification again (same as auto_verify step):
+- Check for test files, run them if they exist
+- Verify code structure and syntax
+- Check for obvious issues
+
+**If verification passes:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Arc knows ► AUTO ► VERIFICATION PASSED ✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All gaps closed successfully. Phase {phase} verified.
+```
+Exit with success.
+
+**If verification still has issues AND `gap_iteration < 3`:**
+- Loop back to diagnose_issues step
+- Increment `gap_iteration`
+
+**If verification still has issues AND `gap_iteration >= 3`:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Arc knows ► AUTO ► MAX RETRIES EXCEEDED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Gap closure failed after 3 iterations.
+
+Remaining issues: {N}
+
+STOP - Manual intervention required.
+```
+Exit with error status for auto orchestrator to handle.
+
+</step>
+
+<step name="auto_verify">
+**Automated verification (only when AUTO_MODE = true):**
+
+Skip interactive UAT. Run automated checks instead:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Arc knows ► AUTO ► RUNNING AUTOMATED VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Run automated checks:**
+
+1. **Check for test files:**
+   ```bash
+   find . -name "*.test.js" -o -name "*.test.ts" -o -name "*.spec.js" -o -name "*.spec.ts" 2>/dev/null
+   ```
+
+2. **If test files exist, run them:**
+   ```bash
+   npm test 2>&1 || echo "Tests completed with failures"
+   ```
+
+3. **Verify code structure:**
+   ```bash
+   # Check for syntax errors
+   node -c *.js 2>&1 || echo "Syntax errors found"
+   # Check TypeScript if present
+   npx tsc --noEmit 2>&1 || echo "Type errors found"
+   ```
+
+4. **Check for obvious issues:**
+   - Import errors
+   - Missing dependencies
+   - Broken file references
+
+**Analyze results:**
+
+**If all checks pass:**
+```
+All automated checks passed. No issues detected.
+```
+Proceed to complete step with `issues = 0`.
+
+**If issues found:**
+Create UAT file with automated test results:
+```markdown
+---
+status: complete
+phase: XX-name
+mode: automated
+started: [ISO timestamp]
+updated: [ISO timestamp]
+---
+
+## Automated Verification Results
+
+### Checks Performed
+- [x] Test suite execution
+- [x] Syntax validation
+- [x] Type checking
+- [x] Import verification
+
+### Issues Found
+{N} issue(s) detected
+
+### Issue Details
+[Detailed list of issues found]
+
+## Gaps
+- truth: "Automated check failed: {description}"
+  status: failed
+  reason: "{automated error message}"
+  severity: {inferred from error type}
+  test: automated
+  artifacts: []
+  missing: []
+```
+
+Set `issues = N` and proceed to `diagnose_issues` step.
+
 </step>
 
 </process>
@@ -563,8 +758,8 @@ Default to **major** if unclear. User can correct if needed.
 - [ ] Batched writes: on issue, every 5 passes, or completion
 - [ ] Committed on completion
 - [ ] If issues: parallel debug agents diagnose root causes
-- [ ] If issues: gsd-planner creates fix plans (gap_closure mode)
-- [ ] If issues: gsd-plan-checker verifies fix plans
+- [ ] If issues: arc-planner creates fix plans (gap_closure mode)
+- [ ] If issues: arc-plan-checker verifies fix plans
 - [ ] If issues: revision loop until plans pass (max 3 iterations)
-- [ ] Ready for `/gsd:execute-phase --gaps-only` when complete
+- [ ] Ready for `/arc:execute-phase --gaps-only` when complete
 </success_criteria>

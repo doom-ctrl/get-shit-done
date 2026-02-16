@@ -1199,7 +1199,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.0] - 2025-12-14
 
 ### Added
-- Initial release of GSD (Get Shit Done) meta-prompting system
+- Initial release of Arc knows meta-prompting system
 - Core slash commands: `/gsd:new-project`, `/gsd:discuss-phase`, `/gsd:plan-phase`, `/gsd:execute-phase`
 - PROJECT.md and STATE.md templates
 - Phase-based development workflow

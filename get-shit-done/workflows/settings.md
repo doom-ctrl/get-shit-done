@@ -1,5 +1,5 @@
 <purpose>
-Interactive configuration of GSD workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences.
+Interactive configuration of Arc knows workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences.
 </purpose>
 
 <required_reading>
@@ -12,8 +12,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 Ensure config exists and load current state:
 
 ```bash
-node ~/.claude/get-shit-done/bin/gsd-tools.js config-ensure-section
-INIT=$(node ~/.claude/get-shit-done/bin/gsd-tools.js state load)
+node ~/.claude/get-shit-done/bin/arc-tools.js config-ensure-section
+INIT=$(node ~/.claude/get-shit-done/bin/arc-tools.js state load)
 ```
 
 Creates `.planning/config.json` with defaults if missing and loads current config values.
@@ -114,7 +114,7 @@ Display:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► SETTINGS UPDATED
+ Arc knows ► SETTINGS UPDATED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 | Setting              | Value |
@@ -125,13 +125,13 @@ Display:
 | Execution Verifier   | {On/Off} |
 | Git Branching        | {None/Per Phase/Per Milestone} |
 
-These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
+These settings apply to future /arc:plan-phase and /arc:execute-phase runs.
 
 Quick commands:
-- /gsd:set-profile <profile> — switch model profile
-- /gsd:plan-phase --research — force research
-- /gsd:plan-phase --skip-research — skip research
-- /gsd:plan-phase --skip-verify — skip plan check
+- /arc:set-profile <profile> — switch model profile
+- /arc:plan-phase --research — force research
+- /arc:plan-phase --skip-research — skip research
+- /arc:plan-phase --skip-verify — skip plan check
 ```
 </step>
 

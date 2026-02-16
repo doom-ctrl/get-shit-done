@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * GSD Tools — CLI utility for GSD workflow operations
+ * Arc Tools — CLI utility for Arc knows workflow operations
  *
- * Replaces repetitive inline bash patterns across ~50 GSD command/workflow/agent files.
+ * Replaces repetitive inline bash patterns across ~50 Arc command/workflow/agent files.
  * Centralizes: config parsing, model resolution, phase lookup, git commits, summary verification.
  *
  * Usage: node gsd-tools.js <command> [args] [--raw]
@@ -28,6 +28,12 @@
  *   phase-plan-index <phase>           Index plans with waves and status
  *   websearch <query>                  Search web via Brave API (if configured)
  *     [--limit N] [--freshness day|week|month]
+ *
+ * Automation:
+ *   checkpoint-write <phase> <step>    Write auto-mode checkpoint
+ *     [--data '{"key":"val"}']         Optional additional data as JSON
+ *   checkpoint-read                    Read auto-mode checkpoint
+ *   auto-resume                        Determine where to resume auto-mode
  *
  * Phase Operations:
  *   phase next-decimal <phase>         Calculate next decimal phase number
@@ -123,17 +129,17 @@ const { execSync } = require('child_process');
 // ─── Model Profile Table ─────────────────────────────────────────────────────
 
 const MODEL_PROFILES = {
-  'gsd-planner':              { quality: 'opus', balanced: 'opus',   budget: 'sonnet' },
-  'gsd-roadmapper':           { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-executor':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-phase-researcher':     { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-project-researcher':   { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-debugger':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'gsd-codebase-mapper':      { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
-  'gsd-verifier':             { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-plan-checker':         { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'gsd-integration-checker':  { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'arc-planner':              { quality: 'opus', balanced: 'opus',   budget: 'sonnet' },
+  'arc-roadmapper':           { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'arc-executor':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'arc-phase-researcher':     { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'arc-project-researcher':   { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
+  'arc-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'arc-debugger':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
+  'arc-codebase-mapper':      { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
+  'arc-verifier':             { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'arc-plan-checker':         { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
+  'arc-integration-checker':  { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -1940,6 +1946,133 @@ function cmdStateSnapshot(cwd, raw) {
   };
 
   output(result, raw);
+}
+
+function cmdCheckpointWrite(cwd, phase, step, rawData, raw) {
+  const planningDir = path.join(cwd, '.planning');
+  const checkpointPath = path.join(planningDir, '.auto-checkpoint.json');
+
+  // Ensure planning directory exists
+  if (!fs.existsSync(planningDir)) {
+    fs.mkdirSync(planningDir, { recursive: true });
+  }
+
+  // Parse additional data from rawData argument (JSON string)
+  let additionalData = {};
+  if (rawData) {
+    try {
+      additionalData = JSON.parse(rawData);
+    } catch (e) {
+      // If parsing fails, treat as simple string description
+      additionalData = { description: rawData };
+    }
+  }
+
+  const checkpoint = {
+    phase: phase || null,
+    step: step || 'unknown',
+    timestamp: new Date().toISOString(),
+    ...additionalData,
+  };
+
+  try {
+    fs.writeFileSync(checkpointPath, JSON.stringify(checkpoint, null, 2), 'utf-8');
+    output({ success: true, path: '.planning/.auto-checkpoint.json', checkpoint }, raw, '.planning/.auto-checkpoint.json');
+  } catch (err) {
+    output({ success: false, error: err.message }, raw);
+  }
+}
+
+function cmdCheckpointRead(cwd, raw) {
+  const checkpointPath = path.join(cwd, '.planning', '.auto-checkpoint.json');
+
+  if (!fs.existsSync(checkpointPath)) {
+    output({ exists: false, checkpoint: null }, raw);
+    return;
+  }
+
+  try {
+    const content = fs.readFileSync(checkpointPath, 'utf-8');
+    const checkpoint = JSON.parse(content);
+
+    // Check if checkpoint is stale (older than 1 hour)
+    const checkpointTime = new Date(checkpoint.timestamp);
+    const now = new Date();
+    const ageMinutes = (now - checkpointTime) / 1000 / 60;
+
+    output({
+      exists: true,
+      checkpoint,
+      is_stale: ageMinutes > 60,
+      age_minutes: Math.floor(ageMinutes),
+    }, raw);
+  } catch (err) {
+    output({ exists: false, checkpoint: null, error: err.message }, raw);
+  }
+}
+
+function cmdAutoResume(cwd, raw) {
+  const planningDir = path.join(cwd, '.planning');
+
+  // First, check if there's a valid checkpoint
+  const checkpointPath = path.join(planningDir, '.auto-checkpoint.json');
+  let checkpointData = null;
+
+  if (fs.existsSync(checkpointPath)) {
+    try {
+      const checkpointContent = fs.readFileSync(checkpointPath, 'utf-8');
+      const checkpoint = JSON.parse(checkpointContent);
+      const checkpointTime = new Date(checkpoint.timestamp);
+      const now = new Date();
+      const ageMinutes = (now - checkpointTime) / 1000 / 60;
+
+      // Use checkpoint if less than 1 hour old
+      if (ageMinutes <= 60) {
+        checkpointData = checkpoint;
+      }
+    } catch (e) {
+      // Checkpoint invalid, fall back to STATE.md analysis
+    }
+  }
+
+  // If checkpoint is valid, use it
+  if (checkpointData) {
+    output({
+      resume_phase: checkpointData.phase,
+      resume_step: checkpointData.step,
+      reason: 'checkpoint',
+      checkpoint: checkpointData,
+    }, raw);
+    return;
+  }
+
+  // Fall back to STATE.md + roadmap analyze
+  const statePath = path.join(planningDir, 'STATE.md');
+  const roadmapPath = path.join(planningDir, 'ROADMAP.md');
+
+  if (!fs.existsSync(statePath) || !fs.existsSync(roadmapPath)) {
+    output({ error: 'Project not initialized - STATE.md or ROADMAP.md not found' }, raw);
+    return;
+  }
+
+  // Use roadmap analyze to find next incomplete phase
+  try {
+    const roadmapResult = execSync(cwd, ['node', path.join(__dirname, 'gsd-tools.js'), 'roadmap', 'analyze']);
+    if (roadmapResult.exitCode !== 0) {
+      output({ error: 'Failed to analyze roadmap: ' + roadmapResult.stderr }, raw);
+      return;
+    }
+    const roadmapData = JSON.parse(roadmapResult.stdout);
+
+    output({
+      resume_phase: roadmapData.next_phase || null,
+      resume_step: 'planning',
+      reason: 'roadmap_analyze',
+      roadmap: roadmapData,
+    }, raw);
+  } catch (err) {
+    output({ error: 'Failed to analyze roadmap: ' + err.message }, raw);
+  }
 }
 
 function cmdSummaryExtract(cwd, summaryPath, fields, raw) {
@@ -4586,6 +4719,25 @@ async function main() {
         limit: limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 10,
         freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
       }, raw);
+      break;
+    }
+
+    case 'checkpoint-write': {
+      const phase = args[1];
+      const step = args[2];
+      const dataIndex = args.indexOf('--data');
+      const data = dataIndex !== -1 ? args[dataIndex + 1] : null;
+      cmdCheckpointWrite(cwd, phase, step, data, raw);
+      break;
+    }
+
+    case 'checkpoint-read': {
+      cmdCheckpointRead(cwd, raw);
+      break;
+    }
+
+    case 'auto-resume': {
+      await cmdAutoResume(cwd, raw);
       break;
     }
 

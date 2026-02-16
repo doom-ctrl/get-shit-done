@@ -6,6 +6,13 @@
     "plan_check": true,
     "verifier": true
   },
+  "auto": {
+    "enabled": false,
+    "verification": true,
+    "gap_closure": true,
+    "max_verification_retries": 3,
+    "checkpoint_interval": "phase"
+  },
   "planning": {
     "commit_docs": true,
     "search_gitignored": false
