@@ -1,6 +1,6 @@
 {
   "name": "arc-knows",
-  "version": "1.18.0",
+  "version": "1.18.1",
   "description": "Arc knows — A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode and Gemini.",
   "bin": {
     "arc-knows": "bin/install.js"
