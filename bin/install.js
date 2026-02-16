@@ -807,12 +807,29 @@ function uninstall(isGlobal, runtime = 'claude') {
     if (fs.existsSync(commandDir)) {
       const files = fs.readdirSync(commandDir);
       for (const file of files) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        if (file.startsWith('arc-') && file.endsWith('.md')) {
           fs.unlinkSync(path.join(commandDir, file));
           removedCount++;
         }
       }
-      console.log(`  ${green}✓${reset} Removed GSD commands from command/`);
+      console.log(`  ${green}✓${reset} Removed arc commands from command/`);
+    }
+
+    // Remove simple commands from OpenCode
+    if (fs.existsSync(commandDir)) {
+      const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+      let simpleRemoved = 0;
+      for (const file of simpleCommands) {
+        const filePath = path.join(commandDir, file);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          simpleRemoved++;
+        }
+      }
+      if (simpleRemoved > 0) {
+        removedCount++;
+        console.log(`  ${green}✓${reset} Removed ${simpleRemoved} simple commands from command/`);
+      }
     }
   } else {
     // Claude Code & Gemini: remove commands/arc/ directory
@@ -821,6 +838,24 @@ function uninstall(isGlobal, runtime = 'claude') {
       fs.rmSync(gsdCommandsDir, { recursive: true });
       removedCount++;
       console.log(`  ${green}✓${reset} Removed commands/arc/`);
+    }
+
+    // Remove simple commands (auto, init, plan, go, onward, next, check-todos, todos)
+    const commandsDir = path.join(targetDir, 'commands');
+    if (fs.existsSync(commandsDir)) {
+      const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+      let simpleRemoved = 0;
+      for (const file of simpleCommands) {
+        const filePath = path.join(commandsDir, file);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          simpleRemoved++;
+        }
+      }
+      if (simpleRemoved > 0) {
+        removedCount++;
+        console.log(`  ${green}✓${reset} Removed ${simpleRemoved} simple commands from commands/`);
+      }
     }
   }
 
@@ -838,7 +873,7 @@ function uninstall(isGlobal, runtime = 'claude') {
     const files = fs.readdirSync(agentsDir);
     let agentCount = 0;
     for (const file of files) {
-      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+      if (file.startsWith('arc-') && file.endsWith('.md')) {
         fs.unlinkSync(path.join(agentsDir, file));
         agentCount++;
       }
@@ -1173,7 +1208,7 @@ function generateManifest(dir, baseDir) {
  */
 function writeManifest(configDir) {
   const gsdDir = path.join(configDir, 'get-shit-done');
-  const commandsDir = path.join(configDir, 'commands', 'gsd');
+  const commandsDir = path.join(configDir, 'commands');
   const agentsDir = path.join(configDir, 'agents');
   const manifest = { version: pkg.version, timestamp: new Date().toISOString(), files: {} };
 
@@ -1182,14 +1217,26 @@ function writeManifest(configDir) {
     manifest.files['get-shit-done/' + rel] = hash;
   }
   if (fs.existsSync(commandsDir)) {
-    const cmdHashes = generateManifest(commandsDir);
-    for (const [rel, hash] of Object.entries(cmdHashes)) {
-      manifest.files['commands/arc/' + rel] = hash;
+    // Add arc commands to manifest
+    const arcCommandsDir = path.join(commandsDir, 'arc');
+    if (fs.existsSync(arcCommandsDir)) {
+      const cmdHashes = generateManifest(arcCommandsDir);
+      for (const [rel, hash] of Object.entries(cmdHashes)) {
+        manifest.files['commands/arc/' + rel] = hash;
+      }
+    }
+    // Add simple commands to manifest
+    const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+    for (const file of simpleCommands) {
+      const filePath = path.join(commandsDir, file);
+      if (fs.existsSync(filePath)) {
+        manifest.files['commands/' + file] = fileHash(filePath);
+      }
     }
   }
   if (fs.existsSync(agentsDir)) {
     for (const file of fs.readdirSync(agentsDir)) {
-      if (file.startsWith('gsd-') && file.endsWith('.md')) {
+      if (file.startsWith('arc-') && file.endsWith('.md')) {
         manifest.files['agents/' + file] = fileHash(path.join(agentsDir, file));
       }
     }
@@ -1315,9 +1362,17 @@ function install(isGlobal, runtime = 'claude') {
     copyFlattenedCommands(gsdSrc, commandDir, 'arc', pathPrefix, runtime);
     if (verifyInstalled(commandDir, 'command/arc-*')) {
       const count = fs.readdirSync(commandDir).filter(f => f.startsWith('arc-')).length;
-      console.log(`  ${green}✓${reset} Installed ${count} commands to command/`);
+      console.log(`  ${green}✓${reset} Installed ${count} arc commands to command/`);
     } else {
       failures.push('command/arc-*');
+    }
+
+    // Copy simple commands to command/ directory (top-level, no prefix)
+    const simpleSrc = path.join(src, 'commands', 'simple');
+    if (fs.existsSync(simpleSrc)) {
+      copyFlattenedCommands(simpleSrc, commandDir, '', pathPrefix, runtime);
+      const simpleCount = fs.readdirSync(simpleSrc).filter(f => f.endsWith('.md')).length;
+      console.log(`  ${green}✓${reset} Installed ${simpleCount} simple commands to command/`);
     }
   } else {
     // Claude Code & Gemini: nested structure in commands/ directory
@@ -1331,6 +1386,18 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Installed commands/arc`);
     } else {
       failures.push('commands/arc');
+    }
+
+    // Copy simple commands to commands/ directory (top-level commands)
+    const simpleSrc = path.join(src, 'commands', 'simple');
+    if (fs.existsSync(simpleSrc)) {
+      copyWithPathReplacement(simpleSrc, commandsDir, pathPrefix, runtime);
+      if (verifyInstalled(commandsDir, 'commands (simple)')) {
+        const simpleCount = fs.readdirSync(simpleSrc).filter(f => f.endsWith('.md')).length;
+        console.log(`  ${green}✓${reset} Installed ${simpleCount} simple commands to commands/`);
+      } else {
+        failures.push('commands (simple)');
+      }
     }
   }
 
@@ -1350,10 +1417,10 @@ function install(isGlobal, runtime = 'claude') {
     const agentsDest = path.join(targetDir, 'agents');
     fs.mkdirSync(agentsDest, { recursive: true });
 
-    // Remove old GSD agents (gsd-*.md) before copying new ones
+    // Remove old Arc agents (arc-*.md) before copying new ones
     if (fs.existsSync(agentsDest)) {
       for (const file of fs.readdirSync(agentsDest)) {
-        if (file.startsWith('gsd-') && file.endsWith('.md')) {
+        if (file.startsWith('arc-') && file.endsWith('.md')) {
           fs.unlinkSync(path.join(agentsDest, file));
         }
       }
