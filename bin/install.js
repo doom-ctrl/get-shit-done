@@ -444,8 +444,8 @@ function convertClaudeToOpencodeFrontmatter(content) {
   convertedContent = convertedContent.replace(/\bAskUserQuestion\b/g, 'question');
   convertedContent = convertedContent.replace(/\bSlashCommand\b/g, 'skill');
   convertedContent = convertedContent.replace(/\bTodoWrite\b/g, 'todowrite');
-  // Replace /gsd:command with /gsd-command for opencode (flat command structure)
-  convertedContent = convertedContent.replace(/\/gsd:/g, '/gsd-');
+  // Replace /arc:command with /arc-command for opencode (flat command structure)
+  convertedContent = convertedContent.replace(/\/arc:/g, '/arc-');
   // Replace ~/.claude with ~/.config/opencode (OpenCode's correct config location)
   convertedContent = convertedContent.replace(/~\/\.claude\b/g, '~/.config/opencode');
 
@@ -585,10 +585,10 @@ function convertClaudeToGeminiToml(content) {
 
 /**
  * Copy commands to a flat structure for OpenCode
- * OpenCode expects: command/gsd-help.md (invoked as /gsd-help)
- * Source structure: commands/gsd/help.md
+ * OpenCode expects: command/arc-help.md (invoked as /arc-help)
+ * Source structure: commands/arc/help.md
  * 
- * @param {string} srcDir - Source directory (e.g., commands/gsd/)
+ * @param {string} srcDir - Source directory (e.g., commands/arc/)
  * @param {string} destDir - Destination directory (e.g., command/)
  * @param {string} prefix - Prefix for filenames (e.g., 'gsd')
  * @param {string} pathPrefix - Path prefix for file references
@@ -617,7 +617,7 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
     
     if (entry.isDirectory()) {
       // Recurse into subdirectories, adding to prefix
-      // e.g., commands/gsd/debug/start.md -> command/gsd-debug-start.md
+      // e.g., commands/arc/debug/start.md -> command/arc-debug-start.md
       copyFlattenedCommands(srcPath, destDir, `${prefix}-${entry.name}`, pathPrefix, runtime);
     } else if (entry.name.endsWith('.md')) {
       // Flatten: help.md -> gsd-help.md
@@ -696,8 +696,8 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime) {
  */
 function cleanupOrphanedFiles(configDir) {
   const orphanedFiles = [
-    'hooks/gsd-notify.sh',  // Removed in v1.6.x
-    'hooks/statusline.js',  // Renamed to gsd-statusline.js in v1.9.0
+    'hooks/arc-notify.sh',  // Removed in v1.6.x
+    'hooks/statusline.js',  // Renamed to arc-statusline.js in v1.9.0
   ];
 
   for (const relPath of orphanedFiles) {
@@ -715,7 +715,7 @@ function cleanupOrphanedFiles(configDir) {
 function cleanupOrphanedHooks(settings) {
   const orphanedHookPatterns = [
     'gsd-notify.sh',  // Removed in v1.6.x
-    'hooks/statusline.js',  // Renamed to gsd-statusline.js in v1.9.0
+    'hooks/statusline.js',  // Renamed to arc-statusline.js in v1.9.0
     'gsd-intel-index.js',  // Removed in v1.9.2
     'gsd-intel-session.js',  // Removed in v1.9.2
     'gsd-intel-prune.js',  // Removed in v1.9.2
@@ -754,13 +754,13 @@ function cleanupOrphanedHooks(settings) {
   // Fix #330: Update statusLine if it points to old statusline.js path
   if (settings.statusLine && settings.statusLine.command &&
       settings.statusLine.command.includes('statusline.js') &&
-      !settings.statusLine.command.includes('gsd-statusline.js')) {
+      !settings.statusLine.command.includes('arc-statusline.js')) {
     // Replace old path with new path
     settings.statusLine.command = settings.statusLine.command.replace(
       /statusline\.js/,
-      'gsd-statusline.js'
+      'arc-statusline.js'
     );
-    console.log(`  ${green}✓${reset} Updated statusline path (statusline.js → gsd-statusline.js)`);
+    console.log(`  ${green}✓${reset} Updated statusline path (statusline.js → arc-statusline.js)`);
   }
 
   return settings;
@@ -802,7 +802,7 @@ function uninstall(isGlobal, runtime = 'claude') {
 
   // 1. Remove GSD commands directory
   if (isOpencode) {
-    // OpenCode: remove command/gsd-*.md files
+    // OpenCode: remove command/arc-*.md files
     const commandDir = path.join(targetDir, 'command');
     if (fs.existsSync(commandDir)) {
       const files = fs.readdirSync(commandDir);
@@ -815,12 +815,12 @@ function uninstall(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Removed GSD commands from command/`);
     }
   } else {
-    // Claude Code & Gemini: remove commands/gsd/ directory
-    const gsdCommandsDir = path.join(targetDir, 'commands', 'gsd');
+    // Claude Code & Gemini: remove commands/arc/ directory
+    const gsdCommandsDir = path.join(targetDir, 'commands', 'arc');
     if (fs.existsSync(gsdCommandsDir)) {
       fs.rmSync(gsdCommandsDir, { recursive: true });
       removedCount++;
-      console.log(`  ${green}✓${reset} Removed commands/gsd/`);
+      console.log(`  ${green}✓${reset} Removed commands/arc/`);
     }
   }
 
@@ -852,7 +852,7 @@ function uninstall(isGlobal, runtime = 'claude') {
   // 4. Remove GSD hooks
   const hooksDir = path.join(targetDir, 'hooks');
   if (fs.existsSync(hooksDir)) {
-    const gsdHooks = ['gsd-statusline.js', 'gsd-check-update.js', 'gsd-check-update.sh'];
+    const gsdHooks = ['arc-statusline.js', 'arc-check-update.js', 'arc-check-update.sh'];
     let hookCount = 0;
     for (const hook of gsdHooks) {
       const hookPath = path.join(hooksDir, hook);
@@ -1137,8 +1137,8 @@ function verifyFileInstalled(filePath, description) {
 // Local Patch Persistence
 // ──────────────────────────────────────────────────────
 
-const PATCHES_DIR_NAME = 'gsd-local-patches';
-const MANIFEST_NAME = 'gsd-file-manifest.json';
+const PATCHES_DIR_NAME = 'arc-local-patches';
+const MANIFEST_NAME = 'arc-file-manifest.json';
 
 /**
  * Compute SHA256 hash of file contents
@@ -1184,7 +1184,7 @@ function writeManifest(configDir) {
   if (fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
     for (const [rel, hash] of Object.entries(cmdHashes)) {
-      manifest.files['commands/gsd/' + rel] = hash;
+      manifest.files['commands/arc/' + rel] = hash;
     }
   }
   if (fs.existsSync(agentsDir)) {
@@ -1259,7 +1259,7 @@ function reportLocalPatches(configDir) {
     }
     console.log('');
     console.log('  Your modifications are saved in ' + cyan + PATCHES_DIR_NAME + '/' + reset);
-    console.log('  Run ' + cyan + '/gsd:reapply-patches' + reset + ' to merge them into the new version.');
+    console.log('  Run ' + cyan + '/arc:reapply-patches' + reset + ' to merge them into the new version.');
     console.log('  Or manually compare and merge the files.');
     console.log('');
   }
@@ -1310,27 +1310,27 @@ function install(isGlobal, runtime = 'claude') {
     const commandDir = path.join(targetDir, 'command');
     fs.mkdirSync(commandDir, { recursive: true });
     
-    // Copy commands/gsd/*.md as command/gsd-*.md (flatten structure)
-    const gsdSrc = path.join(src, 'commands', 'gsd');
-    copyFlattenedCommands(gsdSrc, commandDir, 'gsd', pathPrefix, runtime);
-    if (verifyInstalled(commandDir, 'command/gsd-*')) {
-      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('gsd-')).length;
+    // Copy commands/arc/*.md as command/arc-*.md (flatten structure)
+    const gsdSrc = path.join(src, 'commands', 'arc');
+    copyFlattenedCommands(gsdSrc, commandDir, 'arc', pathPrefix, runtime);
+    if (verifyInstalled(commandDir, 'command/arc-*')) {
+      const count = fs.readdirSync(commandDir).filter(f => f.startsWith('arc-')).length;
       console.log(`  ${green}✓${reset} Installed ${count} commands to command/`);
     } else {
-      failures.push('command/gsd-*');
+      failures.push('command/arc-*');
     }
   } else {
     // Claude Code & Gemini: nested structure in commands/ directory
     const commandsDir = path.join(targetDir, 'commands');
     fs.mkdirSync(commandsDir, { recursive: true });
     
-    const gsdSrc = path.join(src, 'commands', 'gsd');
-    const gsdDest = path.join(commandsDir, 'gsd');
+    const gsdSrc = path.join(src, 'commands', 'arc');
+    const gsdDest = path.join(commandsDir, 'arc');
     copyWithPathReplacement(gsdSrc, gsdDest, pathPrefix, runtime);
-    if (verifyInstalled(gsdDest, 'commands/gsd')) {
-      console.log(`  ${green}✓${reset} Installed commands/gsd`);
+    if (verifyInstalled(gsdDest, 'commands/arc')) {
+      console.log(`  ${green}✓${reset} Installed commands/arc`);
     } else {
-      failures.push('commands/gsd');
+      failures.push('commands/arc');
     }
   }
 
@@ -1435,11 +1435,11 @@ function install(isGlobal, runtime = 'claude') {
   const settingsPath = path.join(targetDir, 'settings.json');
   const settings = cleanupOrphanedHooks(readSettings(settingsPath));
   const statuslineCommand = isGlobal
-    ? buildHookCommand(targetDir, 'gsd-statusline.js')
-    : 'node ' + dirName + '/hooks/gsd-statusline.js';
+    ? buildHookCommand(targetDir, 'arc-statusline.js')
+    : 'node ' + dirName + '/hooks/arc-statusline.js';
   const updateCheckCommand = isGlobal
-    ? buildHookCommand(targetDir, 'gsd-check-update.js')
-    : 'node ' + dirName + '/hooks/gsd-check-update.js';
+    ? buildHookCommand(targetDir, 'arc-check-update.js')
+    : 'node ' + dirName + '/hooks/arc-check-update.js';
 
   // Enable experimental agents for Gemini CLI (required for custom sub-agents)
   if (isGemini) {
@@ -1514,7 +1514,7 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'opencode') program = 'OpenCode';
   if (runtime === 'gemini') program = 'Gemini';
 
-  const command = isOpencode ? '/gsd-help' : '/gsd:help';
+  const command = isOpencode ? '/arc-help' : '/arc:help';
   console.log(`
   ${green}Done!${reset} Launch ${program} and run ${cyan}${command}${reset}.
 
