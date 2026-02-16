@@ -817,7 +817,7 @@ function uninstall(isGlobal, runtime = 'claude') {
 
     // Remove simple commands from OpenCode
     if (fs.existsSync(commandDir)) {
-      const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+      const simpleCommands = ['a-auto.md', 'a-init.md', 'a-plan.md', 'a-go.md', 'a-onward.md', 'a-next.md', 'a-check-todos.md', 'a-todos.md', 'a-continue.md'];
       let simpleRemoved = 0;
       for (const file of simpleCommands) {
         const filePath = path.join(commandDir, file);
@@ -840,10 +840,10 @@ function uninstall(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Removed commands/arc/`);
     }
 
-    // Remove simple commands (auto, init, plan, go, onward, next, check-todos, todos)
+    // Remove simple commands (a-auto, a-init, a-plan, a-go, a-onward, a-next, a-check-todos, a-todos, a-continue)
     const commandsDir = path.join(targetDir, 'commands');
     if (fs.existsSync(commandsDir)) {
-      const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+      const simpleCommands = ['a-auto.md', 'a-init.md', 'a-plan.md', 'a-go.md', 'a-onward.md', 'a-next.md', 'a-check-todos.md', 'a-todos.md', 'a-continue.md'];
       let simpleRemoved = 0;
       for (const file of simpleCommands) {
         const filePath = path.join(commandsDir, file);
@@ -1226,7 +1226,7 @@ function writeManifest(configDir) {
       }
     }
     // Add simple commands to manifest
-    const simpleCommands = ['auto.md', 'init.md', 'plan.md', 'go.md', 'onward.md', 'next.md', 'check-todos.md', 'todos.md'];
+    const simpleCommands = ['a-auto.md', 'a-init.md', 'a-plan.md', 'a-go.md', 'a-onward.md', 'a-next.md', 'a-check-todos.md', 'a-todos.md', 'a-continue.md'];
     for (const file of simpleCommands) {
       const filePath = path.join(commandsDir, file);
       if (fs.existsSync(filePath)) {

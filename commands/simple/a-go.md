@@ -71,13 +71,13 @@ Parse JSON for: `planning_exists`, `roadmap_exists`.
 
 **If `planning_exists` is false:**
 ```
-No project initialized. Run `/init` or `/onward` first.
+No project initialized. Run `/a:init` or `/a:onward` first.
 ```
 Exit workflow.
 
 **If `roadmap_exists` is false:**
 ```
-No roadmap found. Run `/init` or `/onward` first.
+No roadmap found. Run `/a:init` or `/a:onward` first.
 ```
 Exit workflow.
 
@@ -89,9 +89,9 @@ Extract from $ARGUMENTS: phase number (required), flags (`--gaps-only`).
 ```
 Phase number required.
 
-Usage: /go <phase-number> [--gaps-only]
+Usage: /a:go <phase-number> [--gaps-only]
 
-Example: /go 1
+Example: /a:go 1
 ```
 Exit workflow.
 
@@ -195,7 +195,7 @@ Progress: {completed_phases}/{total_phases} phases complete
 [If next_incomplete_phase exists:]
 **Execute Phase {next_incomplete_phase}** — continue execution
 
-`/go {next_incomplete_phase}`
+`/a:go {next_incomplete_phase}`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -210,8 +210,8 @@ Project is ready for deployment.
 
 **Also available:**
 - `/arc:progress` — View detailed phase status
-- `/plan` — Plan remaining phases
-- `/check-todos` — Check pending todos
+- `/a:plan` — Plan remaining phases
+- `/a:check-todos` — Check pending todos
 
 ---
 ```
@@ -238,7 +238,7 @@ Fix plans have been created for Phase {PHASE_NUMBER}.
 
 **Execute gap fixes** — run fix plans to resolve issues
 
-`/go {PHASE_NUMBER} --gaps-only`
+`/a:go {PHASE_NUMBER} --gaps-only`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -246,7 +246,7 @@ Fix plans have been created for Phase {PHASE_NUMBER}.
 
 **Also available:**
 - Review fix plans: `cat .planning/phases/{phase-dir}/*-PLAN.md`
-- Re-verify after manual fixes: `/go {PHASE_NUMBER} --gaps-only`
+- Re-verify after manual fixes: `/a:go {PHASE_NUMBER} --gaps-only`
 
 ---
 ```

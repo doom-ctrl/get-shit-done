@@ -46,7 +46,7 @@ Check for .planning/STATE.md and .planning/ROADMAP.md
 <execution_context>
 @.planning/STATE.md
 @.planning/ROADMAP.md
-@~/.claude/get-shit-done/workflows/auto.md
+@~/.claude/get-shit-done/workflows/a:auto.md
 @~/.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
@@ -64,13 +64,13 @@ Parse JSON for: `planning_exists`, `roadmap_exists`.
 
 **If `planning_exists` is false:**
 ```
-No project initialized. Run `/init` or `/onward` first.
+No project initialized. Run `/a:init` or `/a:onward` first.
 ```
 Exit workflow.
 
 **If `roadmap_exists` is false:**
 ```
-No roadmap found. Run `/init` or `/onward` first.
+No roadmap found. Run `/a:init` or `/a:onward` first.
 ```
 Exit workflow.
 
@@ -116,7 +116,7 @@ Execute auto workflow:
 Task(
   prompt="""Follow the auto workflow with starting phase: ${PHASE}.
            Flags: ${FLAGS}
-           @~/.claude/get-shit-done/workflows/auto.md""",
+           @~/.claude/get-shit-done/workflows/a:auto.md""",
   subagent_type="general-purpose",
   description="Auto-execute all remaining phases"
 )
@@ -154,7 +154,7 @@ Execution time: {duration}
 Project is ready for deployment!
 
 - `/arc:progress` — View detailed phase status
-- `/check-todos` — Check for any remaining todos
+- `/a:check-todos` — Check for any remaining todos
 
 ═════════════════════════════════════════════════════════
 ```
@@ -177,7 +177,7 @@ Checkpoint saved at: {step}
 To continue, run:
 
 \`\`\`
-/auto
+/a:auto
 \`\`\`
 
 This will resume from the checkpoint.
@@ -185,7 +185,7 @@ This will resume from the checkpoint.
 Or start from a specific phase:
 
 \`\`\`
-/auto {phase_number}
+/a:auto {phase_number}
 \`\`\`
 
 ───────────────────────────────────────────────────────────────
@@ -203,8 +203,8 @@ If workflow stopped before completion, also display:
 
 ```
 **Also available:**
-- `/auto {next_phase}` — Start from specific phase
-- `/auto --from-scratch` — Start from phase 1
+- `/a:auto {next_phase}` — Start from specific phase
+- `/a:auto --from-scratch` — Start from phase 1
 - `/arc:progress` — View detailed phase status
 ```
 
@@ -221,12 +221,12 @@ If workflow stopped before completion, also display:
 <examples>
 ```bash
 # Auto-detect and continue from where project is
-/auto
+/a:auto
 
 # Start from phase 3 specifically
-/auto 3
+/a:auto 3
 
 # Start from phase 1, ignore all progress
-/auto --from-scratch
+/a:auto --from-scratch
 ```
 </examples>

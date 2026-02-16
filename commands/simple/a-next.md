@@ -54,8 +54,8 @@ Execute just one phase with full visibility, then stop.
 7. **STOP AND REPORT:**
    - Report: "Phase [current] ✓ complete."
    - If more phases remain:
-     - Report: "Run `/next` to continue to Phase [next]."
-     - Report: "Or run `/go` to auto-execute all remaining phases."
+     - Report: "Run `/a:next` to continue to Phase [next]."
+     - Report: "Or run `/a:go` to auto-execute all remaining phases."
    - If all phases complete:
      - Run `/gsd:complete-milestone`
      - Report: "All phases complete! Milestone finished."

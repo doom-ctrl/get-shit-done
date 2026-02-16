@@ -21,7 +21,7 @@ Plan all remaining phases autonomously while showing every step.
    - Auto-advance to next phase
 3. Report completion
 
-**Use when:** You want to plan everything first, then execute later with `/go`.
+**Use when:** You want to plan everything first, then execute later with `/a:go`.
 </objective>
 
 <process>
@@ -54,6 +54,6 @@ Plan all remaining phases autonomously while showing every step.
 
 3. **COMPLETION**
    - Report: "All phases planned!"
-   - Report: "Run `/go` to execute all phases automatically."
-   - Report: "Or run `/next` to execute one phase at a time."
+   - Report: "Run `/a:go` to execute all phases automatically."
+   - Report: "Or run `/a:next` to execute one phase at a time."
 </process>

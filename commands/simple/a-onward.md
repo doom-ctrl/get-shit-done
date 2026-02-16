@@ -15,7 +15,7 @@ Start working with an existing codebase.
 
 **Flow:**
 1. Run `/gsd:map-codebase` to analyze existing code (you see analysis)
-2. Run `/init` to create project and plan all phases
+2. Run `/a:init` to create project and plan all phases
 
 **Use when:** You have existing code and want to add new features using GSD.
 </objective>
@@ -28,11 +28,11 @@ Start working with an existing codebase.
    - Confirm analysis files created in `.planning/`
 
 2. **INITIALIZE PROJECT**
-   - Run: `/init`
+   - Run: `/a:init`
    - Wait for full completion
    - You will see project creation and all phases being planned
 
 3. **COMPLETION**
    - Report: "Codebase mapped and project initialized."
-   - Report: "Run `/go` to execute all phases automatically."
+   - Report: "Run `/a:go` to execute all phases automatically."
 </process>

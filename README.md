@@ -291,15 +291,17 @@ Switch: `/arc:set-profile budget`
 Want zero interaction? Use the simplified commands:
 
 ```bash
-/init          # Initialize project
-/plan          # Discuss + plan all phases
-/go 1          # Execute + verify phase 1
-/go 2          # Execute + verify phase 2
+/a:init          # Initialize project
+/a:plan          # Discuss + plan all phases
+/a:go 1          # Execute + verify phase 1
+/a:go 2          # Execute + verify phase 2
 ...
-/auto          # Execute ALL remaining phases automatically
+/a:auto          # Execute ALL remaining phases automatically
+# or simply:
+/a:continue      # Continue where you left off (auto-detects next action)
 ```
 
-`/auto` runs the full pipeline: **discuss → plan → execute → verify → next phase**
+`/a:auto` runs the full pipeline: **discuss → plan → execute → verify → next phase**
 
 Continues until all phases complete or error detected. Checkpoint-based resumption across sessions.
 

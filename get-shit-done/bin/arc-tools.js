@@ -41,6 +41,7 @@
  *   phase insert <after> <description> Insert decimal phase after existing
  *   phase remove <phase> [--force]     Remove phase, renumber all subsequent
  *   phase complete <phase>             Mark phase done, update state + roadmap
+ *   phase incomplete                   Find incomplete plans (PLAN without SUMMARY)
  *
  * Roadmap Operations:
  *   roadmap get-phase <phase>          Extract phase section from ROADMAP.md
@@ -3200,6 +3201,73 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
   output(result, raw);
 }
 
+function cmdPhaseIncomplete(cwd, raw) {
+  const phasesDir = path.join(cwd, '.planning', 'phases');
+
+  // Check if phases directory exists
+  if (!fs.existsSync(phasesDir)) {
+    output({ error: 'No phases directory found', incomplete_plans: [] }, raw);
+    return;
+  }
+
+  const incompletePlans = [];
+
+  try {
+    const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
+    const dirs = entries.filter(e => e.isDirectory()).sort();
+
+    for (const dir of dirs) {
+      const match = dir.match(/^(\d+(?:\.\d+)?)-?(.*)/);
+      if (!match) continue;
+
+      const phaseNumber = match[1];
+      const phaseName = match[2] || '';
+      const phasePath = path.join(phasesDir, dir);
+
+      // List plans and summaries in this phase
+      let files;
+      try {
+        files = fs.readdirSync(phasePath);
+      } catch {
+        continue;
+      }
+
+      const plans = files.filter(f => f.match(/-PLAN\.md$/i));
+      const summaries = files.filter(f => f.match(/-SUMMARY\.md$/i));
+
+      // Extract plan IDs (everything before -PLAN.md)
+      const planIds = new Set(plans.map(p => p.replace(/-PLAN\.md$/i, '')));
+      const summaryIds = new Set(summaries.map(s => s.replace(/-SUMMARY\.md$/i, '')));
+
+      // Find plans without summaries
+      const incompleteInPhase = [...planIds].filter(id => !summaryIds.has(id));
+
+      for (const planId of incompleteInPhase) {
+        // Extract the plan file name
+        const planFile = plans.find(p => p.startsWith(planId));
+        if (planFile) {
+          incompletePlans.push({
+            phase: phaseNumber,
+            phase_name: phaseName,
+            plan_id: planId,
+            plan_file: planFile,
+            phase_directory: path.join('.planning', 'phases', dir),
+          });
+        }
+      }
+    }
+  } catch (e) {
+    output({ error: e.message, incomplete_plans: [] }, raw);
+    return;
+  }
+
+  output({
+    has_incomplete: incompletePlans.length > 0,
+    count: incompletePlans.length,
+    incomplete_plans: incompletePlans,
+  }, raw);
+}
+
 // ─── Milestone Complete ───────────────────────────────────────────────────────
 
 function cmdMilestoneComplete(cwd, version, options, raw) {
@@ -4591,8 +4659,10 @@ async function main() {
         cmdPhaseRemove(cwd, args[2], { force: forceFlag }, raw);
       } else if (subcommand === 'complete') {
         cmdPhaseComplete(cwd, args[2], raw);
+      } else if (subcommand === 'incomplete') {
+        cmdPhaseIncomplete(cwd, raw);
       } else {
-        error('Unknown phase subcommand. Available: next-decimal, add, insert, remove, complete');
+        error('Unknown phase subcommand. Available: next-decimal, add, insert, remove, complete, incomplete');
       }
       break;
     }

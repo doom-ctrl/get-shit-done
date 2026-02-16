@@ -21,9 +21,9 @@ Initialize a new greenfield project through unified flow: questioning → resear
 - `.planning/ROADMAP.md` — phase structure
 - `.planning/STATE.md` — project memory
 
-**After this command:** Run `/plan` to start iterative phase planning.
+**After this command:** Run `/a:plan` to start iterative phase planning.
 
-**Note:** For brownfield projects (existing codebase), use `/onward` instead.
+**Note:** For brownfield projects (existing codebase), use `/a:onward` instead.
 </objective>
 
 <context>
@@ -57,5 +57,5 @@ Preserve all workflow gates (validation, approvals, commits, routing).
 - [ ] new-project workflow executed
 - [ ] .planning/ directory created
 - [ ] All project artifacts created
-- [ ] User knows next steps (/plan to start planning)
+- [ ] User knows next steps (/a:plan to start planning)
 </success_criteria>
